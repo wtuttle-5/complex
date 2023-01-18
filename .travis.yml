@@ -6,10 +6,18 @@ before_install:
 - docker build -t will/react-test -f ./client/Dockerfile.dev ././client/Dockerfile.dev
 
 script:
-  - docker run will/react-test npn test -- --cover
+  - - docker run -e CI=true will/react-test npm test
 
 after_success:
   - docker build -t will/multi-client ./client
   - docker build -t will/multi-server ./server
   - docker build -t will/multi-nginx ./nginx
   - docker build -t will/multi-worker ./worker
+
+#log into docker cli
+  - echo "$DOCKER_ID" | docker login -u "$DOCKER_ID" --password-stdin
+#push to docker
+  - docker push will/multi-client
+  - docker push will/multi-server
+  - docker push will/multi-nginx
+  - docker push will/multi-worker
